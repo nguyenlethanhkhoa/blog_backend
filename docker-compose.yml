@@ -1,0 +1,19 @@
+version: "3.7"
+services:
+  blog_be:
+    build:
+      context: .
+      dockerfile: dockerfile
+    image: blog_be
+    container_name: blog_be
+    hostname: blog_be
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    networks:
+      - unicco
+
+networks:
+  unicco:
+    external: true
