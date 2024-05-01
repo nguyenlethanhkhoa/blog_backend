@@ -17,23 +17,26 @@ export class PostService {
         private readonly tagRepository: TagReposity,
         private readonly postRepository: PostReposity,
         private readonly categoryReposity: CategoryReposity,
-    ) {}
+    ) { }
 
     async findAll(filter: FilterPostDto): Promise<[PostEntity[], number]> {
-        
+
         return await this.postRepository.findAndCount({
             relations: ['tags']
         });
     }
 
     async findOneById(postId: number): Promise<PostEntity> {
-        return await this.postRepository.findOne({where: {id: postId}});
+        return await this.postRepository.findOne({
+            relations: ['category', 'tags'],
+            where: { id: postId }
+        });
     }
 
     async findOneBySlug(slug: string): Promise<PostEntity> {
         const post = await this.postRepository.findOne({
             relations: ['category', 'tags'],
-            where: {slug: slug}
+            where: { slug: slug }
         });
 
         return post
@@ -44,7 +47,7 @@ export class PostService {
 
         let category = null;
         if (item.categoryId) {
-            category = await this.categoryReposity.findOne({where: {id: item.categoryId}});
+            category = await this.categoryReposity.findOne({ where: { id: item.categoryId } });
             if (!category) {
                 throw new HttpException('Category is not found', HttpStatus.BAD_REQUEST)
             }
@@ -53,25 +56,28 @@ export class PostService {
         let tags = []
         if (item.tags.length) {
             await this.tagRepository.createManyNotExist(item.tags);
-            tags = await this.tagRepository.find({where: {name: In([...item.tags])}});
+            tags = await this.tagRepository.find({ where: { name: In([...item.tags]) } });
         }
-        
+
         let data: Partial<PostEntity> = {
             ...item,
             slug,
             category,
             tags
         }
-        
-        return await this.postRepository.save({...data});
+
+        return await this.postRepository.save({ ...data });
     }
 
     async update(id: number, item: UpdatePostDto): Promise<PostEntity> {
-        const slug = this.urlService.createSlug(item.title);
+        const post = await this.findOneById(id);
+        if (!post) {
+            throw new HttpException('Notfound', 404)
+        }
 
         let category = null;
         if (item.categoryId) {
-            category = await this.categoryReposity.findOne({where: {id: item.categoryId}});
+            category = await this.categoryReposity.findOne({ where: { id: item.categoryId } });
             if (!category) {
                 throw new HttpException('Category is not found', HttpStatus.BAD_REQUEST)
             }
@@ -80,18 +86,18 @@ export class PostService {
         let tags = []
         if (item.tags.length) {
             await this.tagRepository.createManyNotExist(item.tags);
-            tags = await this.tagRepository.find({where: {name: In([...item.tags])}});
-        }
-        
-        let data: Partial<PostEntity> = {
-            ...item,
-            slug,
-            category,
-            tags
+            tags = await this.tagRepository.find({where: {name: In([...item.tags.map(tag => tag.name)])}});
         }
 
-        await this.postRepository.update(id, {...data});
-        return await this.findOneById(id);
+        post.title = item.title;
+        post.content = item.content;
+        post.slug = this.urlService.createSlug(item.title);
+        post.category = category;
+        post.summary = item.summary;
+        post.thumbnail = item.thumbnail;
+        post.tags = tags;
+    
+        return await this.postRepository.save(post);
     }
 
     async deleteOne(id: number): Promise<void> {

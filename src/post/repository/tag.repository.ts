@@ -9,23 +9,22 @@ export class TagReposity extends Repository<TagEntity> {
         super(TagEntity, dataSource.createEntityManager());
     }
 
-    async createManyNotExist(tagNames: string[]): Promise<void> {
+    async createManyNotExist(tagNames: {name: string}[]): Promise<void> {
 
-        if (!tagNames.length) {
+        const strTagNames: string[] = tagNames.map(tagName => tagName.name);
+        if (!strTagNames.length) {
             return
         }
 
-        const existedTags = await this.find({where: {name: In([...tagNames])}});
+        const existedTags = await this.find({where: {name: In([...strTagNames])}});
         const existedTagNames = existedTags.map((tag) => tag.name);
 
         const tags: {name: string}[] = [];
-        for (const tagName of tagNames) {
+        for (const tagName of strTagNames) {
             if (existedTagNames.indexOf(tagName) == -1) {
                 tags.push({ name: tagName })
             }
         }
-
-        console.log(tags)
 
         if (!tags.length) {
             return;

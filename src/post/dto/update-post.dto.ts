@@ -19,7 +19,15 @@ export class UpdatePostDto {
     readonly content?: string;
 
     @ApiPropertyOptional()
+    @IsString()
+    readonly summary?: string;
+
+    @ApiPropertyOptional()
+    @IsString()
+    readonly thumbnail?: string;
+
+    @ApiPropertyOptional()
     @IsArray()
     @IsString({ each: true })
-    readonly tags?: string[];
+    readonly tags?: {name: string}[];
 }

@@ -26,6 +26,16 @@ export class PostEntity extends BaseEntity{
     title: string;
 
     @Column({
+        nullable: true
+    })
+    summary: string;
+
+    @Column({
+        nullable: true
+    })
+    thumbnail: string;
+
+    @Column({
         nullable: false,
         unique: true
     })

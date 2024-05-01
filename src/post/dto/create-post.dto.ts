@@ -19,7 +19,15 @@ export class CreatePostDto {
     readonly content: string;
 
     @ApiProperty()
+    @IsString()
+    readonly summary: string;
+
+    @ApiProperty()
+    @IsString()
+    readonly thumbnail: string;
+
+    @ApiProperty()
     @IsArray()
     @IsString({ each: true })
-    readonly tags: string[];
+    readonly tags: {name: string}[];
 }

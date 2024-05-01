@@ -79,8 +79,6 @@ export class CategoryService {
         const parentIds = items.map(item => item.id);
         
         let [subItems, _] = await this.categoryReposity.findCategories({includedParentIds: parentIds});
-        console.log(parentIds);
-        console.log(subItems.length);
         if (!subItems.length) {
             return items;
         }

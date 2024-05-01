@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { PostService } from './post.service';
 import { PostEntity } from './entity/post.entity';
@@ -30,19 +30,19 @@ export class PostController {
 
     @Patch(':id')
     async update(
-        @Query('id') id: number,
+        @Param('id') id: number,
         @Body() post: UpdatePostDto
     ): Promise<PostEntity> {
         return await this.postService.update(id, post);
     }
 
     @Get(':slug')
-    async findOne(@Query('slug') slug: string): Promise<PostEntity> {
+    async findOne(@Param('slug') slug: string): Promise<PostEntity> {
         return await this.postService.findOneBySlug(slug);
     }
 
     @Delete(':id')
-    async deleteOne(@Query('id') id: number): Promise<void> {
+    async deleteOne(@Param('id') id: number): Promise<void> {
         await this.postService.deleteOne(id);
     }
 }

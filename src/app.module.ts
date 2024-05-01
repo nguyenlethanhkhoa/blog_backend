@@ -9,6 +9,9 @@ import { SharedModule } from './shared/shared.module';
 import { PostModule } from './post/post.module';
 import { PostEntity } from './post/entity/post.entity';
 import { TagEntity } from './post/entity/tag.entity';
+import { UserModule } from './user/user.module';
+import { UserEntity } from './user/user.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -21,6 +24,7 @@ import { TagEntity } from './post/entity/tag.entity';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [
+        UserEntity,
         TagEntity,
         PostEntity,
         CategoryEntity
@@ -29,7 +33,7 @@ import { TagEntity } from './post/entity/tag.entity';
     }),
     SharedModule,
     CategoryModule, 
-    PostModule,
+    PostModule, UserModule, AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
